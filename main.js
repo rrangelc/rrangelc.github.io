@@ -19,13 +19,25 @@ const canvas = document.createElement('canvas');
 const context = canvas.getContext('2d');
 canvas.width = 64;
 canvas.height = 64;
+
+// Clear canvas
+context.clearRect(0, 0, 64, 64);
+
+// Draw dollar sign
 context.fillStyle = '#ffffff';
-context.font = 'bold 48px Arial';
+context.font = 'bold 40px Arial';
 context.textAlign = 'center';
 context.textBaseline = 'middle';
 context.fillText('$', 32, 32);
 
-const texture = new THREE.CanvasTexture(canvas);
+// Simple texture creation for compatibility
+let texture;
+try {
+    texture = new THREE.CanvasTexture(canvas);
+} catch(e) {
+    texture = new THREE.Texture(canvas);
+    texture.needsUpdate = true;
+}
 
 // Green color palette
 const colors = [
@@ -38,7 +50,7 @@ const colors = [
 ];
 
 // Particle system
-const particlesCount = 1500;
+const particlesCount = 2000;
 const positions = new Float32Array(particlesCount * 3);
 const colorsArray = new Float32Array(particlesCount * 3);
 const alphasArray = new Float32Array(particlesCount);
@@ -81,30 +93,24 @@ geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
 geometry.setAttribute('color', new THREE.BufferAttribute(colorsArray, 3));
 geometry.setAttribute('alpha', new THREE.BufferAttribute(alphasArray, 1));
 
+// Create material with maximum compatibility
 const material = new THREE.PointsMaterial({
-    size: 2,
+    size: 8,
     transparent: true,
     opacity: 1.0,
-    vertexColors: true,
+    color: 0x43e97b,
     map: texture,
+    alphaTest: 0.1,
     blending: THREE.AdditiveBlending,
     depthWrite: false
 });
 
-// Modificar el shader para usar alpha individual
-material.onBeforeCompile = (shader) => {
-    shader.vertexShader = shader.vertexShader.replace(
-        '#include <common>',
-        `#include <common>\nattribute float alpha;\nvarying float vAlpha;`
-    ).replace(
-        '#include <begin_vertex>',
-        `#include <begin_vertex>\nvAlpha = alpha;`
-    );
-    shader.fragmentShader = shader.fragmentShader.replace(
-        'gl_FragColor = vec4( outgoingLight, diffuseColor.a );',
-        'gl_FragColor = vec4( outgoingLight, diffuseColor.a * vAlpha );'
-    );
-};
+// Add vertex colors if supported
+if (THREE.VertexColors !== undefined) {
+    material.vertexColors = THREE.VertexColors;
+} else {
+    material.vertexColors = true;
+}
 
 // Create particle system
 const particles = new THREE.Points(geometry, material);
