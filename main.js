@@ -53,7 +53,6 @@ const colors = [
 const particlesCount = 2000;
 const positions = new Float32Array(particlesCount * 3);
 const colorsArray = new Float32Array(particlesCount * 3);
-const alphasArray = new Float32Array(particlesCount);
 
 // Create spiral pattern
 for (let i = 0; i < particlesCount; i++) {
@@ -80,36 +79,33 @@ for (let i = 0; i < particlesCount; i++) {
     colorsArray[i * 3 + 1] = color.g;
     colorsArray[i * 3 + 2] = color.b;
 
-    // Asignar opacidad aleatoria (más cerca, más brillante)
-    const distance = Math.sqrt(x * x + y * y + z * z);
-    let alpha = 0.5 + 0.5 * Math.random(); // base aleatoria
-    alpha *= 1 - Math.min(distance / 60, 0.7); // más lejos, más tenue
-    alphasArray[i] = Math.max(0.25, Math.min(1, alpha));
+    // No need for alpha array anymore
 }
 
 // Create geometry and material
 const geometry = new THREE.BufferGeometry();
 geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
 geometry.setAttribute('color', new THREE.BufferAttribute(colorsArray, 3));
-geometry.setAttribute('alpha', new THREE.BufferAttribute(alphasArray, 1));
 
-// Create material with maximum compatibility
+// Create simple material for maximum compatibility
 const material = new THREE.PointsMaterial({
-    size: 8,
+    size: 10,
     transparent: true,
-    opacity: 1.0,
-    color: 0x43e97b,
+    opacity: 0.8,
     map: texture,
-    alphaTest: 0.1,
     blending: THREE.AdditiveBlending,
     depthWrite: false
 });
 
-// Add vertex colors if supported
-if (THREE.VertexColors !== undefined) {
-    material.vertexColors = THREE.VertexColors;
-} else {
-    material.vertexColors = true;
+// Try to add vertex colors safely
+try {
+    if (THREE.VertexColors !== undefined) {
+        material.vertexColors = THREE.VertexColors;
+    } else {
+        material.vertexColors = true;
+    }
+} catch(e) {
+    console.log('Vertex colors not supported in this Three.js version');
 }
 
 // Create particle system
