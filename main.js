@@ -1,5 +1,5 @@
-import * as THREE from 'three';
-import { translations } from './translations.js';
+// Three.js is now loaded via CDN
+// translations.js will be loaded as a regular script
 
 // Scene setup
 const scene = new THREE.Scene();
