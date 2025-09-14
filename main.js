@@ -50,22 +50,22 @@ const colors = [
 ];
 
 // Particle system
-const particlesCount = 2000;
+const particlesCount = 800;
 const positions = new Float32Array(particlesCount * 3);
 const colorsArray = new Float32Array(particlesCount * 3);
 
 // Create spiral pattern
 for (let i = 0; i < particlesCount; i++) {
-    const radius = 40;
-    const spinAngle = (i / particlesCount) * Math.PI * 10;
+    const radius = 60;
+    const spinAngle = (i / particlesCount) * Math.PI * 8;
     const branchAngle = (i % 3) * (Math.PI * 2) / 3;
     
     // Add some randomness to the radius
-    const randomRadius = radius * (0.8 + Math.random() * 0.4);
+    const randomRadius = radius * (0.8 + Math.random() * 0.6);
     
     // Calculate position with spiral pattern
     const x = Math.cos(spinAngle + branchAngle) * randomRadius;
-    const y = (Math.random() - 0.5) * 30;
+    const y = (Math.random() - 0.5) * 40;
     const z = Math.sin(spinAngle + branchAngle) * randomRadius;
     
     // Add some random offset for more natural distribution
